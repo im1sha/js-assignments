@@ -453,12 +453,9 @@ function sortCitiesArray(arr) {
  *           [0,0,0,0,1]]
  */
 function getIdentityMatrix(n) {
-	let result = new Array(n);
-	return result.map( (item, index, array) => { 
-   		let tmp = new Array(n).fill(0);
-   		tmp[index] = 1;
-   		return tmp;
-   	});
+	return new Array(n).fill().map((item, index, array) => (
+        new Array(n).fill().map((subitem, subindex, subarray) => {
+            return subindex === index ? 1 : 0; })))
 }
 
 /**
@@ -475,7 +472,7 @@ function getIdentityMatrix(n) {
  *     3, 3   => [ 3 ]
  */
 function getIntervalArray(start, end) {
-   throw new Error('Not implemented');
+	return new Array(end - start + 1).fill().map((item, index, array) => start + index);
 }
 
 /**
@@ -490,7 +487,7 @@ function getIntervalArray(start, end) {
  *   [ 1, 1, 2, 2, 3, 3, 4, 4] => [ 1, 2, 3, 4]
  */
 function distinct(arr) {
-   throw new Error('Not implemented');
+	return arr.filter((item, index, array) => index === array.indexOf(item) );
 }
 
 /**
@@ -524,7 +521,21 @@ function distinct(arr) {
  *   }
  */
 function group(array, keySelector, valueSelector) {
-   throw new Error('Not implemented');
+	let result = new Map();
+
+    array.map(item => {
+        let selectedValues = 
+        	array.reduce( (accumulator, current) => {
+	            if (keySelector(item) === keySelector(current)) {
+	            	return accumulator.concat(valueSelector(current));
+	            } else {
+	            	return accumulator;
+	            }
+	        }, []);
+        result.set(keySelector(item), selectedValues);
+    });    
+
+    return result;
 }
 
 /**
@@ -540,7 +551,8 @@ function group(array, keySelector, valueSelector) {
  *   ['one','two','three'], x=>x.split('')  =>   ['o','n','e','t','w','o','t','h','r','e','e']
  */
 function selectMany(arr, childrenSelector) {
-    throw new Error('Not implemented');
+	return arr.reduce((result, item) =>  
+         result.concat(childrenSelector(item)), []);
 }
 
 /**
@@ -557,10 +569,10 @@ function selectMany(arr, childrenSelector) {
  *   [[[ 1, 2, 3]]], [ 0, 0, 1 ]      => 2        (arr[0][0][1])
  */
 function getElementByIndexes(arr, indexes) {
-    throw new Error('Not implemented');
+	return indexes.reduce( (result, currentIndex) => result[currentIndex], arr);
 }
 
-
+ 
 /**
  * Возвращает массив с измененным порядком элементов исходного массива:
  * Меняет местами элементы до среднего элемента и элементы после
@@ -580,7 +592,14 @@ function getElementByIndexes(arr, indexes) {
  *
  */
 function swapHeadAndTail(arr) {
-    throw new Error('Not implemented');
+    let shift = Math.floor(arr.length / 2);
+
+    let head = arr.slice(0, shift);
+    let tail = arr.slice(-shift);
+
+    arr.splice(0, shift);
+    arr.splice(-shift);
+    return tail.concat(arr).concat(head);
 }
 
 

@@ -30,7 +30,15 @@
  *
  */
 function getFizzBuzz(num) {
-    throw new Error('Not implemented');
+	if ((num % 3 === 0) && (num % 5 === 0)) { 
+		return 'FizzBuzz'; 
+	} else if (num % 3 === 0) { 
+		return 'Fizz'; 
+	} else if (num % 5 === 0) { 
+		return 'Buzz'; 
+	} else { 
+		return num; 
+	}
 }
 
 
@@ -46,7 +54,11 @@ function getFizzBuzz(num) {
  *   10 => 3628800
  */
 function getFactorial(n) {
-    throw new Error('Not implemented');
+	let result = 1;
+    for (let i = 1; i <= n; i++) {
+    	result *= i;
+    }
+    return result;
 }
 
 
@@ -63,7 +75,11 @@ function getFactorial(n) {
  *   -1,1  =>  0  ( = -1 + 0 + 1 )
  */
 function getSumBetweenNumbers(n1, n2) {
-    throw new Error('Not implemented');
+	let sum = 0;
+    for(let i = n1; i <= n2; i++){
+    	sum += i;
+    }
+    return sum;
 }
 
 
@@ -83,7 +99,7 @@ function getSumBetweenNumbers(n1, n2) {
  *   10,10,10 =>  true
  */
 function isTriangle(a,b,c) {
-    throw new Error('Not implemented');
+    return (a + b > c) && (a + c > b) && (c + b > a) ? true : false;
 }
 
 
@@ -120,7 +136,10 @@ function isTriangle(a,b,c) {
  *
  */
 function doRectanglesOverlap(rect1, rect2) {
-    throw new Error('Not implemented');
+	return (rect1.top < rect2.top + rect2.height) &&
+        (rect2.top < rect1.top + rect1.height) &&
+        (rect1.left < rect2.left + rect2.width) &&
+        (rect2.left < rect1.left + rect1.width);
 }
 
 
@@ -151,7 +170,9 @@ function doRectanglesOverlap(rect1, rect2) {
  *
  */
 function isInsideCircle(circle, point) {
-    throw new Error('Not implemented');
+	let dx = circle.center.x - point.x;
+	let dy = circle.center.y - point.y;
+	return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2)) < circle.radius ? true : false;
 }
 
 
@@ -167,7 +188,20 @@ function isInsideCircle(circle, point) {
  *   'entente' => null
  */
 function findFirstSingleChar(str) {
-    throw new Error('Not implemented');
+    let isSingle;
+	for (let i = 0; i < str.length; i++) {
+		isSingle = true;
+		for (let j = 0 ; j < str.length; j++) {
+			if ((str[i] === str[j]) && (i !== j)) {
+				isSingle = false;
+				break;
+			}
+		}
+		if (isSingle) {
+			return str[i];
+		}
+	}
+	return null;
 }
 
 
@@ -193,7 +227,17 @@ function findFirstSingleChar(str) {
  *
  */
 function getIntervalString(a, b, isStartIncluded, isEndIncluded) {
-    throw new Error('Not implemented');
+	let first, second;
+	if (a < b) {
+		first = a;
+		second = b;
+	} else {
+		first = b; 
+		second = a;
+	}
+	let start = isStartIncluded ? '[' : '(';
+	let end = isEndIncluded ? ']' : ')';
+	return start + first + ', ' + second + end;
 }
 
 
@@ -210,7 +254,11 @@ function getIntervalString(a, b, isStartIncluded, isEndIncluded) {
  * 'noon' => 'noon'
  */
 function reverseString(str) {
-    throw new Error('Not implemented');
+    let result = '';
+    for(let i = str.length - 1; i >= 0; i--) {
+    	result = result.concat(str[i]);
+    }
+    return result;
 }
 
 
@@ -227,7 +275,13 @@ function reverseString(str) {
  *   34143 => 34143
  */
 function reverseInteger(num) {
-    throw new Error('Not implemented');
+    let str = num.toString();
+    let result = '';
+    for(let i = str.length - 1; i >= 0; i--) {
+    	result = result.concat(str[i]);
+    }
+    return result;
+    //return reverseString(num.toString());    
 }
 
 
@@ -252,7 +306,21 @@ function reverseInteger(num) {
  *   4916123456789012 => false
  */
 function isCreditCardNumber(ccn) {
-    throw new Error('Not implemented');
+	let ccnString = ccn.toString();
+    let sum = Number(ccnString[ccnString.length-1]);
+    let nDigits = ccnString.length;
+    let parity = nDigits % 2;
+    for (let i = 0; i < nDigits - 1; i++) {
+        let digit = Number(ccnString[i]);
+        if (i % 2 === parity) {
+            digit *= 2;
+        }
+        if (digit > 9) {
+            digit -= 9;
+        }
+        sum += digit;
+    }
+    return (sum % 10) === 0;
 }
 
 
@@ -271,13 +339,24 @@ function isCreditCardNumber(ccn) {
  *   165536 (1+6+5+5+3+6 = 26,  2+6 = 8) => 8
  */
 function getDigitalRoot(num) {
-    throw new Error('Not implemented');
+	let sum = 0;
+    for (let i = 0; i < num.toString().length; i++) {
+    	sum += Number(num.toString()[i]);
+    	if (sum > 9) {
+    		let newSum = 0;
+    		for (let j = 0; j < sum.toString().length; j++) {
+    			newSum += Number(sum.toString()[j]);
+    		}
+    		sum = newSum;
+    	}
+    };
+    return sum;
 }
 
 
 /**
  * Возвращает true если переданная строка представляет собой правильную скобочную
- * структура, если нет -false
+ * структура, если нет - false
  * Правильная скобочная структура состоит из соответствующих закрывающихся,
  * открывающихся фигурных скобок, стоящих на соответствующих местях.
  * Скобочная последовательность может содержать:  [],(),{},<>
@@ -298,7 +377,34 @@ function getDigitalRoot(num) {
  *   '{[(<{[]}>)]}' = true
  */
 function isBracketsBalanced(str) {
-    throw new Error('Not implemented');
+	let dest = Array();
+	let dictionary = {
+		'>': '<' ,
+		'}': '{' ,
+		')': '(' ,
+		']': '[' ,
+	};
+	for (let i = 0 ; i < str.length ; i++) {
+		switch (str[i]) {
+			case '<':
+			case '[':
+			case '{':
+			case '(':
+				dest.push(str[i]);
+				break;
+			case '>':
+			case ']':
+			case '}':
+			case ')':
+				if ((dest.length > 0) && (dest[dest.length - 1] === dictionary[str[i]])) {
+					dest.pop();
+				} else {
+					return false;
+				}
+				break;
+		}
+	}
+	return dest.length === 0 ;
 }
 
 

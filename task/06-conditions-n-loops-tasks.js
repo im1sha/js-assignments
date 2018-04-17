@@ -440,7 +440,35 @@ function isBracketsBalanced(str) {
  *
  */
 function timespanToHumanString(startDate, endDate) {
-    throw new Error('Not implemented');
+    let interval = endDate - startDate,
+		seconds = interval / 1000, 
+		minutes = interval / 60000, 
+		hours = interval / 3600000, 
+		days = interval / 86400000;
+
+	if (seconds <= 45) {
+		return 'a few seconds ago';
+	} else if (seconds <= 90) {
+		return 'a minute ago';
+	} else if (minutes <= 45) {
+		return new String((seconds % 60 <= 30) ? Math.floor(minutes) : Math.ceil(minutes)).concat(' minutes ago');
+	} else if (minutes <= 90) {
+		return 'an hour ago';
+	} else if (hours <= 22) {
+		return new String((minutes % 60 <= 30) ? Math.floor(hours) : Math.ceil(hours)).concat(' hours ago');
+	} else if (hours <= 36) {
+		return 'a day ago';
+	} else if (days <= 25) {
+		return new String((hours % 24 <= 12) ? Math.floor(days) :  Math.ceil(days)).concat(' days ago');
+	} else if (days <= 45) {
+		return 'a month ago';
+	} else if (days <= 345) {
+		return new String(Math.round(days / 30)).concat(' months ago');
+	} else if (days <= 545) {
+		return 'a year ago';
+	} else {
+		return new String(Math.round(days / 365.25)).concat(' years ago');
+	}
 }
 
 /**
@@ -463,7 +491,15 @@ function timespanToHumanString(startDate, endDate) {
  *    365, 10 => '365'
  */
 function toNaryString(num, n) {
-    throw new Error('Not implemented');
+	let remain = num;
+	let digit;
+	let result = Array();
+	while (remain > 0) {
+		digit = remain % n;
+		result.unshift(digit);
+		remain = Math.floor(remain / n);
+	}	
+	return result.join('');
 }
 
 
@@ -480,7 +516,20 @@ function toNaryString(num, n) {
  *   ['/web/favicon.ico', '/web-scripts/dump', '/webalizer/logs'] => '/'
  */
 function getCommonDirectoryPath(pathes) {
-    throw new Error('Not implemented');
+	let dirs = Array(pathes.length);
+    for (let i = 0; i < pathes.length; i++) {
+    	dirs[i] = pathes[i].split('/');
+    }
+    let commonPath = '';
+    for (let i = 0; i < dirs[0].length; i++) {
+    	for (let j = 1; j < dirs.length; j++) {
+    		if (dirs[0][i] != dirs[j][i]) {
+    			return commonPath;
+    		}
+    	}
+    	commonPath = commonPath.concat(dirs[0][i], '/');
+    }
+    return commonPath;
 }
 
 
@@ -503,7 +552,19 @@ function getCommonDirectoryPath(pathes) {
  *
  */
 function getMatrixProduct(m1, m2) {
-    throw new Error('Not implemented');
+    let result = Array(m1.length);
+    for (let i = 0; i < result.length; i++) {
+    	result[i] = Array(m2[0].length);
+    }
+    for (let i = 0; i < result.length; i++) {
+    	for (let j = 0; j < result[0].length; j++) {
+    		result[i][j] = 0;
+    		for (let k = 0; k < m2.length; k++) {
+    			result[i][j] += (m1[i][k] * m2[k][j]);
+    		}
+    	}
+    }
+    return result;
 }
 
 
@@ -538,7 +599,40 @@ function getMatrixProduct(m1, m2) {
  *
  */
 function evaluateTicTacToePosition(position) {
-    throw new Error('Not implemented');
+
+    const values = [
+	    '0', 'X'  
+	];
+
+	const matrixSize = 3;
+
+	let result = undefined;
+	//result = values[v];
+
+	for(let v = 0; v < values.length; v++) {
+		for (let i = 0; i < matrixSize; i++) {
+			for (let j = 0; j < matrixSize; j++) {
+				if (position[i][j] !== values[v]) { break; }
+				if (j === (matrixSize - 1)) { result = values[v]; }
+			}
+		}
+		for (let j = 0; j < matrixSize; j++) {
+			for (let i = 0; i < matrixSize; i++) {
+				if (position[i][j] !== values[v]) { break; }
+				if (i === (matrixSize - 1)) { result = values[v]; }
+			}
+		}
+		for (let j = 0; j < matrixSize; j++) {
+			if (position[j][j] !== values[v]) { break; }
+			if (j === (matrixSize - 1)) { result = values[v]; }
+		}
+		for (let j = 0; j < matrixSize; j++) {
+			if (position[j][matrixSize - j - 1] !== values[v]) { break; }
+			if (j === (matrixSize - 1)) { result = values[v]; }
+		}
+		if (result !== undefined) { break; }
+	}
+	return result;
 }
 
 

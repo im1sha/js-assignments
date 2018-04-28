@@ -17,8 +17,48 @@
  *  ]
  */
 function createCompassPoints() {
-    throw new Error('Not implemented');
-    var sides = ['N','E','S','W'];  // use array of cardinal directions only!
+
+    var sides = ['N', 'E', 'S', 'W'];  // use array of cardinal directions only!
+
+    let result = [];
+
+    for (let i = 1; i <= sides.length; i++) {
+        let ch1 = sides[i - 1],
+            ch2,
+            chars; // combination of ch1 and ch2
+
+        ch2 = (i === sides.length ? sides[0]
+            : sides[i]);
+
+        // if E or W
+        chars = (i % 2 === 0 ? ch2 + ch1
+            : ch1 + ch2);
+
+        let quarter = [
+            { abbreviation: ch1 },
+            { abbreviation: ch1 + 'b' + ch2 },
+
+            { abbreviation: ch1 + chars },
+            { abbreviation: chars + 'b' + ch1 },
+
+            { abbreviation: chars },
+            { abbreviation: chars + 'b' + ch2 },
+
+            { abbreviation: ch2 + chars },
+            { abbreviation: ch2 + 'b' + ch1 }
+        ];
+
+        result = result.concat(quarter);
+    }
+
+    let azimuth = 0.00;
+    const azimuth_delta = 11.25;
+    for (let n = 0; n < result.length; n++) {
+        result[n].azimuth = azimuth;
+        azimuth += azimuth_delta;
+    }
+
+    return result;
 }
 
 
@@ -56,7 +96,22 @@ function createCompassPoints() {
  *   'nothing to do' => 'nothing to do'
  */
 function* expandBraces(str) {
-    throw new Error('Not implemented');
+    let source = [str],
+        result = [];
+
+    while (source.length > 0) {
+        let new_string = source.pop(),
+            match_array = new_string.match(/{([^{}]+)}/);
+
+        if (match_array !== null) {
+            for (let value of match_array[1].split(',')) {
+                source.push(new_string.replace(match_array[0], value));
+            }
+        } else if (result.indexOf(new_string) < 0) {
+            result.push(new_string);
+            yield new_string;
+        }
+    }
 }
 
 
@@ -89,7 +144,42 @@ function* expandBraces(str) {
  *
  */
 function getZigZagMatrix(n) {
-    throw new Error('Not implemented');
+    let result = [];
+    for (let x = 0; x < n; x++) {
+        result[x] = [];
+    }
+
+    let current = 0;
+    for (let i = 1; i < 2 * n; i++) {
+        let direction_up = (i % 2 === 0) ? false : true; // whether zigzag rises
+
+        let y, x;
+        if (i <= n) {
+            x = 0;
+            y = i - 1;
+        } else {
+            x = i - n;
+            y = n - 1;
+        }
+
+        if (direction_up === true) {
+            let tmp = y;
+            y = x;
+            x = tmp;
+        }
+
+        let diag_length = (i > n) ? 2 * n - i : i; // current diagonal
+        for (let j = 0; j < diag_length; j++) {
+            result[x][y] = current;
+            if (direction_up) {
+                x--; y++;
+            } else {
+                x++; y--;
+            }
+            current++;
+        }
+    }
+    return result;
 }
 
 
@@ -114,7 +204,34 @@ function getZigZagMatrix(n) {
  *
  */
 function canDominoesMakeRow(dominoes) {
-    throw new Error('Not implemented');
+    let returned_value = false;
+    let is_visited = (new Array(dominoes.length)).fill(false);
+
+    function rec(index, value, left) {
+        if (left === 0) {
+            returned_value = true;
+            return;
+        }
+        is_visited[index] = true;
+        for (let i = 0; i < dominoes.length; i++) {
+            if (!is_visited[i]) {
+                if (dominoes[i].indexOf(value) !== -1) {
+                    rec(i, dominoes[i][0] === value ? dominoes[i][1] : dominoes[i][0], left - 1);
+                }
+            }
+        }
+        is_visited[index] = false;
+    }
+
+    for (let i = 0; i < dominoes.length; i++) {
+        for (let j = 0; j < dominoes[i].length; j++) {
+            rec(i, dominoes[i][j], dominoes.length - 1);
+            if (returned_value === true) {
+                return true;
+            }
+        }      
+    }
+    return false;
 }
 
 
@@ -138,7 +255,21 @@ function canDominoesMakeRow(dominoes) {
  * [ 1, 2, 4, 5]          => '1,2,4,5'
  */
 function extractRanges(nums) {
-    throw new Error('Not implemented');
+    let result = '';
+    for (let i = 0; i < nums.length; i++) {
+        let start = i;
+
+        while (nums[++i] === nums[i - 1] + 1) { }
+        i--; 
+
+        if (i - start > 1) {
+            result += nums[start] + '-' + nums[i];
+        } else {
+            result += (i - start) === 0 ? nums[i] : nums[start] + ',' + nums[i];
+        }
+        result += ',';
+    }
+    return result.slice(0, -1);
 }
 
 module.exports = {

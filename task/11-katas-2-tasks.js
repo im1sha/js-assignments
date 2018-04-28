@@ -34,7 +34,23 @@
  *
  */
 function parseBankAccount(bankAccount) {
-    throw new Error('Not implemented');
+    let result = '';
+    let source = bankAccount.split('\n');
+    let pattern = RegExp(/(.{3})/);
+    source = source.map(item => item.split(pattern));
+    for (let i = 0; i < source[0].length; i++) {
+        if (source[0][i] === '   ' && source[1][i] === '  |') result += 1;
+        if (source[2][i] === '|_ ') result += 2;
+        if (source[1][i] === ' _|' && source[2][i] === ' _|') result += 3;
+        if (source[0][i] === '   ' && source[1][i] === '|_|') result += 4;
+        if (source[1][i] === '|_ ' && source[2][i] === ' _|') result += 5;
+        if (source[1][i] === '|_ ' && source[2][i] === '|_|') result += 6;
+        if (source[0][i] === ' _ ' && source[2][i] === '  |') result += 7;
+        if (source[1][i] === '|_|' && source[2][i] === '|_|') result += 8;
+        if (source[1][i] === '|_|' && source[2][i] === ' _|') result += 9;
+        if (source[1][i] === '| |' && source[2][i] === '|_|') result += 0;
+    }
+    return result;
 }
 
 
@@ -63,7 +79,21 @@ function parseBankAccount(bankAccount) {
  *                                                                                                'characters.'
  */
 function* wrapText(text, columns) {
-    throw new Error('Not implemented');
+    let result = '';
+    if (text.length <= columns) {
+        return yield text;
+    }
+
+    while (text) {
+        let edge = text.slice(0, columns + 1).lastIndexOf(' ');
+        if (edge > 0) {
+            result = text.slice(0, edge);
+            yield result.trim();
+            text = text.slice(edge).trim();
+        } else {
+            return yield text;
+        }
+    }
 }
 
 
@@ -101,7 +131,32 @@ const PokerRank = {
 }
 
 function getPokerHandRank(hand) {
-    throw new Error('Not implemented');
+    let suits = '♥♠♦♣';
+    let digits = 'A234567891JQK';
+
+
+    let suits_arr = Array.from(suits, () => 0),
+        digit_arr = Array.from(digits, () => 0);
+
+    for (let card of hand) {
+        suits_arr[suits.indexOf(card.slice(-1))]++;
+        digit_arr[digits.indexOf(card[0])]++;
+    }
+
+    digit_arr.push(digit_arr[0]);
+
+    let suits_string = suits_arr.join(''),
+        digit_string = digit_arr.join('');
+
+    return (digit_string.indexOf('11111') !== -1) && (suits_string.indexOf('5') !== -1) ? PokerRank.StraightFlush
+        : (digit_string.indexOf('4') !== -1) ? PokerRank.FourOfKind
+        : (digit_string.indexOf('2') !== -1) && (digit_string.indexOf('3') !== -1) ? PokerRank.FullHouse
+        : (suits_string.indexOf('5') !== -1) ? PokerRank.Flush
+        : (digit_string.indexOf('11111') !== -1) ? PokerRank.Straight
+        : (digit_string.indexOf('3') !== -1) ? PokerRank.ThreeOfKind
+        : (digit_string.match(/2.*2.+/)) ? PokerRank.TwoPairs
+        : (digit_string.indexOf('2') !== -1) ? PokerRank.OnePair
+        : PokerRank.HighCard;
 }
 
 
@@ -136,7 +191,61 @@ function getPokerHandRank(hand) {
  *    '+-------------+\n'
  */
 function* getFigureRectangles(figure) {
-   throw new Error('Not implemented');
+
+    function get_top_left_corner(i, j) {
+        return matrix[i][j] === '+'
+            && matrix[i + 1][j] !== ' '
+            && matrix[i][j + 1] !== undefined
+            && matrix[i + 1][j] !== undefined
+            && matrix[i][j + 1] !== ' ';
+    }
+
+    let str = 0;
+    let col = 0;
+    let x = 0;
+    let y = 0;
+    let points = [];
+    let matrix = figure.split('\n');
+
+    for (let i = 0; i < matrix.length; i++) {
+        for (let j = 0; j < matrix[0].length; j++) {
+            if (matrix[i][j] === '+'
+                && matrix[i + 1][j] === ' '
+                && matrix[i][j + 1] === undefined
+                || matrix[i][j] === '+'
+                && matrix[i + 1][j] === undefined
+                && matrix[i][j + 1] === ' ') {
+
+                points.push(i);
+                points.push(j);
+            }
+        }
+    }
+
+    for (let i = 0; i < matrix.length; i++) {
+        for (let j = 0; j < matrix[0].length; j++) {
+            if (get_top_left_corner(i, j) === true) {
+                x = j + 1;
+                y = i + 1;
+                str = 0;
+                col = 0;
+                if (i === points[0]
+                    && j === points[2]
+                    && matrix[points[3]][points[1]] === ' ') {
+                    continue;
+                }
+                while (matrix[i + 1][x] === ' ') {
+                    x++;
+                    str++;
+                }
+                while (matrix[y][j] !== '+') {
+                    y++;
+                    col++;
+                }
+                yield `+${'-'.repeat(str)}+${`\n|${' '.repeat(str)}|`.repeat(col)}\n+${'-'.repeat(str)}+\n`;
+            }
+        }
+    }
 }
 
 

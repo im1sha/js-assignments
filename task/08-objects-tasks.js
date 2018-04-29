@@ -114,35 +114,105 @@ function fromJSON(proto, json) {
  */
 
 const cssSelectorBuilder = {
+    
     element: function(value) {
-        throw new Error('Not implemented');
+        return new Selector().element(value);
     },
 
     id: function(value) {
-        throw new Error('Not implemented');
+        return new Selector().id(value);
     },
 
     class: function(value) {
-        throw new Error('Not implemented');
+        return new Selector().class(value);
     },
 
     attr: function(value) {
-        throw new Error('Not implemented');
+        return new Selector().attr(value);
     },
 
     pseudoClass: function(value) {
-        throw new Error('Not implemented');
+        return new Selector().pseudoClass(value);
     },
 
     pseudoElement: function(value) {
-        throw new Error('Not implemented');
+        return new Selector().pseudoElement(value);
     },
 
     combine: function(selector1, combinator, selector2) {
-        throw new Error('Not implemented');
+        return new CombinedSelector(selector1, combinator, selector2);
     },
 };
 
+class Selector {
+    constructor() {
+        this.result = '';
+        this.state = SelectorState.empty;
+    }
+
+    default(need, opportunity, value) {
+        if (this.state === need && !opportunity) {
+            throw new Error("Element, id and pseudo-element should not occur more then one time inside the selector");
+        }
+        if (this.state > need) {
+            throw new Error("Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element");
+        }
+        this.state = need;
+        this.result += value;
+        return this;
+    }
+
+    element(value) {
+        return this.default(SelectorState.element, false, value);
+    }
+
+    id(value) {
+        return this.default(SelectorState.id, false, `#${value}`);
+    }
+
+    class(value) {
+        return this.default(SelectorState.class, true, `.${value}`);
+    }
+
+    attr(value) {
+        return this.default(SelectorState.attr, true, `[${value}]`);
+    }
+
+    pseudoClass(value) {
+        return this.default(SelectorState.pseudoClass, true, `:${value}`);
+    }
+
+    pseudoElement(value) {
+        return this.default(SelectorState.pseudoElement, false, `::${value}`);
+    }
+
+    stringify() {
+        return this.result;
+    }
+}
+
+const SelectorState = {
+    empty: 0,
+    element: 1,
+    id: 2,
+    class: 3,
+    attr: 4,
+    pseudoClass: 5,
+    pseudoElement: 6,
+    full: 7
+};
+
+class CombinedSelector {
+    constructor(selector1, combinator, selector2) {
+        this.selector1 = selector1;
+        this.combinator = combinator;
+        this.selector2 = selector2;
+    }
+
+    stringify() {
+        return [this.selector1.stringify(), this.combinator, this.selector2.stringify()].join(' ');
+    }
+}
 
 module.exports = {
     Rectangle: Rectangle,

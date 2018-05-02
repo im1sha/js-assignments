@@ -192,59 +192,77 @@ function getPokerHandRank(hand) {
  */
 function* getFigureRectangles(figure) {
 
-    function get_top_left_corner(i, j) {
-        return matrix[i][j] === '+'
-            && matrix[i + 1][j] !== ' '
-            && matrix[i][j + 1] !== undefined
-            && matrix[i + 1][j] !== undefined
-            && matrix[i][j + 1] !== ' ';
-    }
-
-    let str = 0;
-    let col = 0;
-    let x = 0;
-    let y = 0;
-    let points = [];
-    let matrix = figure.split('\n');
-
-    for (let i = 0; i < matrix.length; i++) {
-        for (let j = 0; j < matrix[0].length; j++) {
-            if (matrix[i][j] === '+'
-                && matrix[i + 1][j] === ' '
-                && matrix[i][j + 1] === undefined
-                || matrix[i][j] === '+'
-                && matrix[i + 1][j] === undefined
-                && matrix[i][j + 1] === ' ') {
-
-                points.push(i);
-                points.push(j);
+    let arr = figure.split('\n');
+    for (let i = 0; i < arr.length; i++) {
+        for (let j = 0; j < arr[i].length; j++) {
+            if (arr[i][j] === '+') {
+                let rect = findRectangle(arr, i, j);
+                if (rect !== null) {
+                    yield drawRectangle(rect.weight, rect.height)
+                }
             }
         }
     }
 
-    for (let i = 0; i < matrix.length; i++) {
-        for (let j = 0; j < matrix[0].length; j++) {
-            if (get_top_left_corner(i, j) === true) {
-                x = j + 1;
-                y = i + 1;
-                str = 0;
-                col = 0;
-                if (i === points[0]
-                    && j === points[2]
-                    && matrix[points[3]][points[1]] === ' ') {
-                    continue;
+    function drawRectangle(weight, height) {
+        return '+' + '-'.repeat(weight - 2) + '+\n' +
+            ('|' + ' '.repeat(weight - 2) + '|\n').repeat(height - 2) +
+            '+' + '-'.repeat(weight - 2) + '+\n'
+    }  
+    
+    function findRectangle(figure, fromRowIndex, fromColumnIndex) {
+        for (let i = fromRowIndex + 1; i < figure.length; i++) {
+            if (figure[i][fromColumnIndex] === '+') {
+                for (let j = fromColumnIndex + 1; j < figure[fromRowIndex].length; j++) {
+                    if (figure[i][j] === "+") {
+                        if (figure[fromRowIndex][j] === "+") {
+							
+                            let flag = true;
+                            for (let k = fromRowIndex + 1; k < i; k++) {
+                                if (!isVertical(figure[k][j])) {
+                                    flag = false;
+                                    break;
+                                }
+                            }
+                            for (let k = fromColumnIndex + 1; k < j; k++) {
+                                if (!isHorizontal(figure[fromRowIndex][k])) {
+                                    flag = false;
+                                    break;
+                                }
+                            }  
+							
+                            if (flag)
+                                return {
+                                    height: (i - fromRowIndex + 1),
+                                    weight: (j - fromColumnIndex + 1)
+                                };
+                        }
+                    }
+                    else if (!isHorizontal(figure[i][j])) {
+                        break;
+                    }
                 }
-                while (matrix[i + 1][x] === ' ') {
-                    x++;
-                    str++;
-                }
-                while (matrix[y][j] !== '+') {
-                    y++;
-                    col++;
-                }
-                yield `+${'-'.repeat(str)}+${`\n|${' '.repeat(str)}|`.repeat(col)}\n+${'-'.repeat(str)}+\n`;
+            }
+            else if (!isVertical(figure[i][fromColumnIndex])) {
+                break;
             }
         }
+
+        return null;
+    }
+
+    function isVertical(char) {
+        if (char === '+' || char === '|') {
+            return true;
+        }
+        return false;
+    }
+
+    function isHorizontal(char) {
+        if (char === '+' || char === '-') {
+            return true;
+        }
+        return false;
     }
 }
 
